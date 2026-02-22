@@ -2,6 +2,8 @@
 
 This project is a Flask-based web application that predicts faults in satellite systems based on telemetry data. It utilizes an ensemble of machine learning models to provide robust predictions and a confidence score through majority voting.
 
+
+Live: https://n-o-v-a-system.onrender.com/
 ## Features
 - **Ensemble Machine Learning:** Uses multiple pre-trained models to make predictions:
   - Decision Tree
