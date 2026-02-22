@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N.O.V.A - Satellite Health Monitoring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #667eea;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn.active {
+            background: #764ba2;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .feature-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-item h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+
+        .satellite-type {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .satellite-type:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .satellite-type h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .predict-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .form-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .predict-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .results {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        .status-normal {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-fault {
+            background: #dc3545;
+            color: white;
+        }
+
+        .model-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .model-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .model-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .satellite-detail {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .satellite-detail img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .satellite-detail h3 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .satellite-detail p {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .example-box {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            margin-top: 15px;
+        }
+
+        .algorithm-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .algorithm-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .algorithm-card p {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .sensor-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sensor-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .sensor-card p {
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛰️ N.O.V.A</h1>
+            <p class="subtitle">Neural Orbital Vigilance & Analytics System</p>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" onclick="showSection('home')">HOME</button>
+            <button class="nav-btn" onclick="showSection('about')">ABOUT</button>
+            <button class="nav-btn" onclick="showSection('modules')">MODULES</button>
+            <button class="nav-btn" onclick="showSection('predict')">PREDICT</button>
+        </nav>
+
+        <!-- HOME Section -->
+        <div id="home" class="content-section active">
+            <div class="main-grid">
+                <div class="panel">
+                    <h2>Sensor Parameters</h2>
+                    <div class="feature-item">
+                        <h3>Feature 1: Temperature (°C)</h3>
+                        <p>Ambient temperature monitoring</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Feature 2: Humidity (%)</h3>
+                        <p>Relative humidity percentage</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Feature 3: Pressure (Pa)</h3>
+                        <p>Atmospheric pressure measurement</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Feature 4: Gas (PPM)</h3>
+                        <p>Gas concentration in parts per million</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Feature 5: Radiation (µSv/h)</h3>
+                        <p>Radiation level detection</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Feature 6: Battery Voltage (V)</h3>
+                        <p>Current battery voltage level</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Know Satellite Type</h2>
+                    <div class="satellite-type" onclick="showSatelliteDetail('meteorological')">
+                        <h3>Meteorological</h3>
+                        <p>Weather monitoring satellites</p>
+                    </div>
+                    <div class="satellite-type" onclick="showSatelliteDetail('remote')">
+                        <h3>Remote Sensing</h3>
+                        <p>Earth observation systems</p>
+                    </div>
+                    <div class="satellite-type" onclick="showSatelliteDetail('navigation')">
+                        <h3>Navigation</h3>
+                        <p>GPS and positioning systems</p>
+                    </div>
+                    <div class="satellite-type" onclick="showSatelliteDetail('military')">
+                        <h3>Military</h3>
+                        <p>Defense and surveillance</p>
+                    </div>
+                    <div class="satellite-type" onclick="showSatelliteDetail('space')">
+                        <h3>Space Telescopes</h3>
+                        <p>Astronomical observation</p>
+                    </div>
+                    <div class="satellite-type" onclick="showSatelliteDetail('scientific')">
+                        <h3>Scientific Research</h3>
+                        <p>Research and experimentation</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="satelliteDetails" style="display: none;"></div>
+        </div>
+
+        <!-- ABOUT Section -->
+        <div id="about" class="content-section">
+            <div class="panel">
+                <h2>About N.O.V.A System</h2>
+                <p style="line-height: 1.8; color: #555; margin-bottom: 20px;">
+                    The Neural Orbital Vigilance & Analytics (N.O.V.A) system is an advanced satellite health monitoring platform that leverages multiple machine learning algorithms to predict potential faults in satellite systems before they occur. This predictive maintenance approach helps prevent catastrophic failures and ensures continuous satellite operations.
+                </p>
+                
+                <h3 style="color: #667eea; margin: 25px 0 15px;">Project Overview</h3>
+                <p style="line-height: 1.8; color: #555; margin-bottom: 20px;">
+                    This project combines hardware sensor integration with sophisticated machine learning models to create a comprehensive satellite health monitoring solution. The system collects real-time data from various sensors and processes it through multiple classification algorithms to detect anomalies and predict potential failures.
+                </p>
+
+                <h3 style="color: #667eea; margin: 25px 0 15px;">Arduino-Based Data Collection</h3>
+                <p style="line-height: 1.8; color: #555; margin-bottom: 20px;">
+                    The project utilizes an Arduino UNO microcontroller board as the central data acquisition unit. Multiple sensors are interfaced with the Arduino to collect critical satellite health parameters:
+                </p>
+
+                <div class="sensor-card">
+                    <h3>🌡️ Temperature Sensor</h3>
+                    <p>Monitors ambient and component temperatures to detect overheating conditions that could lead to system failures. Critical for thermal management in the vacuum of space.</p>
+                </div>
+
+                <div class="sensor-card">
+                    <h3>💧 Humidity Sensor</h3>
+                    <p>Measures relative humidity levels to prevent moisture-related damage in electronic components. Essential for detecting environmental control issues.</p>
+                </div>
+
+                <div class="sensor-card">
+                    <h3>📏 Ultrasonic Sensor</h3>
+                    <p>Provides distance measurements for proximity detection and collision avoidance. Simulates ranging sensors used in orbital positioning systems.</p>
+                </div>
+
+                <div class="sensor-card">
+                    <h3>🔬 Gas Sensor (MQ Series)</h3>
+                    <p>Detects harmful gas concentrations that could indicate electrical fires or component degradation. Critical for early fire detection in enclosed satellite systems.</p>
+                </div>
+
+                <div class="sensor-card">
+                    <h3>☢️ Radiation Sensor</h3>
+                    <p>Monitors ionizing radiation levels that can damage electronics in space. Tracks cumulative radiation exposure affecting satellite longevity.</p>
+                </div>
+
+                <div class="sensor-card">
+                    <h3>🔴 IR Sensor (Infrared)</h3>
+                    <p>Detects infrared radiation for thermal imaging and object detection. Used for monitoring component temperatures without physical contact.</p>
+                </div>
+
+                <h3 style="color: #667eea; margin: 25px 0 15px;">Dataset Generation</h3>
+                <p style="line-height: 1.8; color: #555; margin-bottom: 20px;">
+                    Initial data was collected from the Arduino sensor module under various simulated conditions. A Python script was then developed to augment this baseline data, generating a comprehensive dataset with realistic variations and edge cases. This synthetic data generation approach allowed us to create a robust training dataset covering scenarios that would be difficult or dangerous to replicate in real hardware testing.
+                </p>
+
+                <p style="line-height: 1.8; color: #555; margin-bottom: 20px;">
+                    The final dataset includes 16 features (after dropping the timestamp column) representing various satellite health parameters, with a binary target variable (fault_flag) indicating whether a fault condition is present. This balanced dataset enables the machine learning models to learn patterns associated with both normal operations and fault conditions.
+                </p>
+
+                <h3 style="color: #667eea; margin: 25px 0 15px;">Machine Learning Pipeline</h3>
+                <p style="line-height: 1.8; color: #555; margin-bottom: 20px;">
+                    Seven different classification algorithms were trained on the dataset, each offering unique strengths in pattern recognition. This ensemble approach provides robust fault detection by combining multiple perspectives on the data. When predictions disagree, the system uses majority voting to determine the final classification, significantly reducing false positives and negatives.
+                </p>
+            </div>
+        </div>
+
+        <!-- MODULES Section -->
+        <div id="modules" class="content-section">
+            <div class="panel">
+                <h2>Machine Learning Algorithms</h2>
+                
+                <div class="algorithm-card">
+                    <h3>🌳 Decision Tree Classifier</h3>
+                    <p>A tree-based model that makes decisions by splitting data based on feature values. Highly interpretable and excellent for understanding which features are most important for fault detection. Works by creating a flowchart-like structure where each internal node represents a test on a feature, each branch represents the outcome, and each leaf node represents a class label.</p>
+                    <p><strong>Advantages:</strong> Easy to interpret, handles both numerical and categorical data, requires little data preprocessing.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🎯 K-Nearest Neighbors (KNN)</h3>
+                    <p>A non-parametric method that classifies data points based on the classes of their nearest neighbors. The algorithm finds the K closest training examples and assigns the most common class among them. Particularly effective for pattern recognition in sensor data where similar readings indicate similar conditions.</p>
+                    <p><strong>Advantages:</strong> Simple to understand, no training phase required, adapts well to new patterns in data.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>📈 Logistic Regression</h3>
+                    <p>A statistical model that uses a logistic function to model binary outcomes. Despite its name, it's a classification algorithm that estimates probabilities using a sigmoid function. Excellent for baseline performance and understanding feature relationships. Provides probability scores for predictions.</p>
+                    <p><strong>Advantages:</strong> Computationally efficient, provides probability estimates, less prone to overfitting with proper regularization.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🧠 Multi-Layer Perceptron (MLP) Neural Network</h3>
+                    <p>A feedforward artificial neural network with multiple layers of neurons. Capable of learning complex non-linear relationships in the data through backpropagation. The network consists of an input layer, one or more hidden layers, and an output layer, with each connection having an associated weight that's adjusted during training.</p>
+                    <p><strong>Advantages:</strong> Learns complex patterns, handles high-dimensional data well, can approximate any continuous function.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🌲 Random Forest Classifier</h3>
+                    <p>An ensemble learning method that constructs multiple decision trees during training and outputs the mode of their predictions. Reduces overfitting by averaging multiple trees and provides robust performance across various datasets. Each tree is trained on a random subset of features and data.</p>
+                    <p><strong>Advantages:</strong> Highly accurate, handles missing values well, provides feature importance rankings, resistant to overfitting.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>⚡ Support Vector Classifier (SVC)</h3>
+                    <p>A powerful algorithm that finds the optimal hyperplane separating different classes in high-dimensional space. Uses kernel tricks to handle non-linear decision boundaries. Particularly effective when there's a clear margin of separation between classes, making it ideal for binary fault detection.</p>
+                    <p><strong>Advantages:</strong> Effective in high dimensions, memory efficient, versatile through different kernel functions.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🚀 XGBoost Classifier</h3>
+                    <p>An optimized gradient boosting algorithm that builds an ensemble of weak prediction models (typically decision trees) in a sequential manner. Each new tree corrects errors made by previous trees. Known for its speed, performance, and regularization capabilities. Widely used in machine learning competitions due to its exceptional accuracy.</p>
+                    <p><strong>Advantages:</strong> Superior performance, handles missing data, built-in regularization prevents overfitting, parallel processing for speed.</p>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 30px;">
+                <h2>Arduino Hardware Components</h2>
+                
+                <div class="algorithm-card">
+                    <h3>🔧 Arduino UNO Board</h3>
+                    <p>The Arduino UNO is a microcontroller board based on the ATmega328P. It serves as the brain of our data acquisition system, featuring 14 digital input/output pins, 6 analog inputs, a 16 MHz ceramic resonator, a USB connection, a power jack, an ICSP header, and a reset button.</p>
+                    <p><strong>Specifications:</strong> Operating Voltage: 5V, Input Voltage: 7-12V, Digital I/O Pins: 14, Analog Input Pins: 6, Flash Memory: 32 KB, SRAM: 2 KB, Clock Speed: 16 MHz.</p>
+                    <p><strong>Role in Project:</strong> Collects data from all connected sensors, performs initial data processing, and transmits readings to the computer via serial communication for dataset generation.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🌡️ DHT11/DHT22 Temperature & Humidity Sensor</h3>
+                    <p>Digital sensor that measures temperature and relative humidity. Uses a capacitive humidity sensor and a thermistor to measure the surrounding air. Provides calibrated digital signal output through a single-wire interface.</p>
+                    <p><strong>Applications:</strong> Monitors environmental conditions inside satellite compartments, detects thermal anomalies, tracks humidity levels that could affect electronics.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>📡 HC-SR04 Ultrasonic Sensor</h3>
+                    <p>Non-contact distance measurement sensor using ultrasonic waves. Emits ultrasonic pulses and measures the time taken for echoes to return, calculating distance based on the speed of sound.</p>
+                    <p><strong>Applications:</strong> Proximity detection, collision avoidance simulation, measuring vibration amplitude through distance changes, deployment mechanism monitoring.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🔬 MQ-2/MQ-135 Gas Sensor</h3>
+                    <p>Semiconductor gas sensor that detects various gases including LPG, propane, methane, hydrogen, alcohol, smoke, and carbon dioxide. Changes resistance based on gas concentration, providing analog voltage output.</p>
+                    <p><strong>Applications:</strong> Early fire detection, outgassing detection from materials, air quality monitoring, identifying electrical component failures through unusual gas emissions.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>🔴 IR Sensor Module</h3>
+                    <p>Infrared proximity sensor that detects objects and measures infrared radiation. Consists of an IR LED transmitter and a photodiode receiver. Can operate in both digital (object detection) and analog (distance measurement) modes.</p>
+                    <p><strong>Applications:</strong> Non-contact temperature monitoring, object detection, tracking solar panel orientation, detecting mechanical failures through thermal signatures.</p>
+                </div>
+
+                <div class="algorithm-card">
+                    <h3>☢️ Geiger Counter / Radiation Sensor</h3>
+                    <p>Detects ionizing radiation including alpha, beta, and gamma particles. In our simulation, we model radiation exposure levels that satellites experience in various orbital environments.</p>
+                    <p><strong>Applications:</strong> Cumulative radiation dose tracking, identifying high-radiation zones, predicting component degradation due to radiation exposure, ensuring safety margins.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PREDICT Section -->
+        <div id="predict" class="content-section">
+            <div class="predict-panel">
+                <h2 style="color: #667eea; margin-bottom: 25px;">🎯 Predict Satellite Health</h2>
+                
+                <form id="predictForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Temperature (°C)</label>
+                            <input type="number" step="0.01" name="temperature_c" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Humidity (%)</label>
+                            <input type="number" step="0.01" name="humidity_percent" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pressure (Pa)</label>
+                            <input type="number" step="0.01" name="pressure_pa" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gas (PPM)</label>
+                            <input type="number" step="0.01" name="gas_ppm" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Radiation (µSv/h)</label>
+                            <input type="number" step="0.01" name="radiation_usv_h" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Battery Voltage (V)</label>
+                            <input type="number" step="0.01" name="battery_voltage_v" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Solar Current (mA)</label>
+                            <input type="number" step="0.01" name="solar_current_ma" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CPU Temperature (°C)</label>
+                            <input type="number" step="0.01" name="cpu_temp_c" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Vibration (mm/s)</label>
+                            <input type="number" step="0.01" name="vibration_mms" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Satellite Mode</label>
+                            <input type="number" step="1" name="satellite_mode" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Region</label>
+                            <input type="number" step="1" name="region" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Battery Voltage Next (V)</label>
+                            <input type="number" step="0.01" name="battery_voltage_next" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Altitude (m)</label>
+                            <input type="number" step="0.01" name="altitude_m" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Magnetic Field (µT)</label>
+                            <input type="number" step="0.01" name="magnetic_field_uT" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Solar Panel Temp (°C)</label>
+                            <input type="number" step="0.01" name="solar_panel_temp_c" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gyro Stability Index</label>
+                            <input type="number" step="0.01" name="gyro_stability_index" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="predict-btn">🚀 Analyze Satellite Health</button>
+                </form>
+
+                <div id="results" class="results">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Analysis Results</h3>
+                    <div id="overallStatus"></div>
+                    <div id="modelResults" class="model-results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.content-section');
+            const buttons = document.querySelectorAll('.nav-btn');
+            
+            sections.forEach(section => section.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showSatelliteDetail(type) {
+            const details = {
+                meteorological: {
+                    title: 'Meteorological Satellites',
+                    image: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=800',
+                    description: 'Meteorological satellites are specialized spacecraft designed to monitor Earth\'s weather and climate patterns. They orbit the planet continuously, capturing vital atmospheric data including cloud formations, temperature gradients, precipitation patterns, and storm systems.',
+                    example: '<strong>Real-Life Example: GOES-R Series</strong><br>The Geostationary Operational Environmental Satellites (GOES) operated by NOAA provide continuous weather monitoring for the Americas. GOES-16 and GOES-17 capture high-resolution imagery every 30 seconds, enabling meteorologists to track hurricanes, severe storms, and weather fronts in real-time. These satellites have revolutionized weather forecasting, providing early warnings that save countless lives during natural disasters.'
+                },
+                remote: {
+                    title: 'Remote Sensing Satellites',
+                    image: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800',
+                    description: 'Remote sensing satellites are Earth observation platforms that capture detailed imagery and data about our planet\'s surface. Using various sensors including optical cameras, infrared detectors, and radar systems, they monitor land use, vegetation health, urban development, and environmental changes.',
+                    example: '<strong>Real-Life Example: Landsat Program</strong><br>The Landsat series, a joint program by NASA and USGS, has been continuously observing Earth since 1972. Landsat 8 and 9 provide multispectral imagery with 30-meter resolution, enabling applications in agriculture, forestry, water resource management, and urban planning. The program has created an invaluable archive documenting 50+ years of planetary change, helping scientists track deforestation, glacier retreat, and urban expansion globally.'
+                },
+                navigation: {
+                    title: 'Navigation Satellites',
+                    image: 'https://images.unsplash.com/photo-1516849677043-ef67c9557e16?w=800',
+                    description: 'Navigation satellites form the backbone of Global Navigation Satellite Systems (GNSS), providing precise positioning, navigation, and timing services worldwide. These satellites transmit radio signals that allow receivers on Earth to determine their exact location, velocity, and time with remarkable accuracy.',
+                    example: '<strong>Real-Life Example: GPS Constellation</strong><br>The Global Positioning System (GPS) consists of 31 operational satellites orbiting at approximately 20,200 km altitude. Each satellite broadcasts precise timing signals, and GPS receivers use signals from at least four satellites to triangulate position with accuracy better than 5 meters. GPS has become essential for navigation, agriculture, surveying, aviation, and countless smartphone applications used by billions of people daily.'
+                },
+                military: {
+                    title: 'Military Satellites',
+                    image: 'https://images.unsplash.com/photo-1454789548928-9efd52dc4031?w=800',
+                    description: 'Military satellites serve critical defense and intelligence functions including surveillance, reconnaissance, secure communications, missile warning, and signals intelligence. These classified systems provide strategic advantages in national security, enabling real-time battlefield awareness and secure command-and-control capabilities.',
+                    example: '<strong>Real-Life Example: SBIRS (Space-Based Infrared System)</strong><br>The SBIRS constellation, operated by the U.S. Space Force, provides early warning of ballistic missile launches using sophisticated infrared sensors. These satellites detect the heat signatures of missile launches within seconds, providing critical warning time for defensive responses. SBIRS satellites operate in both geostationary and highly elliptical orbits, ensuring continuous global coverage for missile defense and strategic intelligence.'
+                },
+                space: {
+                    title: 'Space Telescopes',
+                    image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800',
+                    description: 'Space telescopes are astronomical observatories positioned beyond Earth\'s atmosphere, enabling unprecedented views of the universe without atmospheric distortion. These platforms observe across the electromagnetic spectrum from infrared to ultraviolet, revealing cosmic phenomena impossible to study from ground-based telescopes.',
+                    example: '<strong>Real-Life Example: James Webb Space Telescope (JWST)</strong><br>Launched in 2021, the James Webb Space Telescope orbits at the L2 Lagrange point, 1.5 million km from Earth. With its 6.5-meter segmented mirror and infrared instruments cooled to -233°C, JWST peers into the earliest moments of the universe, observing galaxies formed just hundreds of millions of years after the Big Bang. It has already revolutionized our understanding of exoplanets, star formation, and galaxy evolution, capturing images of unprecedented clarity and scientific value.'
+                },
+                scientific: {
+                    title: 'Scientific Research Satellites',
+                    image: 'https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?w=800',
+                    description: 'Scientific research satellites conduct experiments and gather data across various scientific disciplines including physics, biology, materials science, and Earth sciences. These platforms provide unique microgravity environments and vantage points for studying phenomena impossible to observe on Earth.',
+                    example: '<strong>Real-Life Example: International Space Station (ISS)</strong><br>While technically a space station rather than a satellite, the ISS represents humanity\'s premier orbital research laboratory. Orbiting at 400 km altitude with continuous human presence since 2000, it hosts hundreds of experiments studying protein crystallization, combustion physics, plant growth in microgravity, human physiology, and materials science. Research conducted aboard the ISS has led to advances in drug development, water purification, and our understanding of long-duration spaceflight effects on the human body.'
+                }
+            };
+
+            const detail = details[type];
+            const detailsDiv = document.getElementById('satelliteDetails');
+            
+            detailsDiv.innerHTML = `
+                <div class="satellite-detail">
+                    <img src="${detail.image}" alt="${detail.title}">
+                    <h3>${detail.title}</h3>
+                    <p>${detail.description}</p>
+                    <div class="example-box">
+                        <p>${detail.example}</p>
+                    </div>
+                </div>
+            `;
+            
+            detailsDiv.style.display = 'block';
+            detailsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('predictForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const resultsDiv = document.getElementById('results');
+                    const overallStatus = document.getElementById('overallStatus');
+                    const modelResults = document.getElementById('modelResults');
+                    
+                    const statusClass = result.overall_status === 'FAULT DETECTED' ? 'status-fault' : 'status-normal';
+                    const statusIcon = result.overall_status === 'FAULT DETECTED' ? '⚠️' : '✅';
+                    
+                    overallStatus.innerHTML = `
+                        <div class="status-badge ${statusClass}">
+                            ${statusIcon} ${result.overall_status}
+                        </div>
+                        <p style="margin-top: 15px; font-size: 1.1em;">
+                            <strong>Confidence:</strong> ${result.confidence}%<br>
+                            <strong>Models Detecting Fault:</strong> ${result.fault_count} / ${result.total_models}
+                        </p>
+                    `;
+                    
+                    let modelsHTML = '';
+                    for (const [model, pred] of Object.entries(result.predictions)) {
+                        const modelStatusClass = pred.status === 'FAULT DETECTED' ? 'status-fault' : 'status-normal';
+                        modelsHTML += `
+                            <div class="model-card">
+                                <h4>${model}</h4>
+                                <div class="status-badge ${modelStatusClass}" style="font-size: 0.9em; padding: 8px 15px;">
+                                    ${pred.status}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    modelResults.innerHTML = modelsHTML;
+                    resultsDiv.classList.add('show');
+                    resultsDiv.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error connecting to server: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
